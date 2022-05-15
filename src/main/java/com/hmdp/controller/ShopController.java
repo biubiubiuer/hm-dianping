@@ -26,6 +26,16 @@ public class ShopController {
     @Resource
     public IShopService shopService;
 
+//    /**
+//     * 根据id查询商铺信息
+//     * @param id 商铺id
+//     * @return 商铺详情数据
+//     */
+//    @GetMapping("/{id}")
+//    public Result queryShopById(@PathVariable("id") Long id) {
+//        return Result.ok(shopService.getById(id));
+//    }
+
     /**
      * 根据id查询商铺信息
      * @param id 商铺id
@@ -33,7 +43,7 @@ public class ShopController {
      */
     @GetMapping("/{id}")
     public Result queryShopById(@PathVariable("id") Long id) {
-        return Result.ok(shopService.getById(id));
+        return shopService.queryById(id);
     }
 
     /**
@@ -57,8 +67,7 @@ public class ShopController {
     @PutMapping
     public Result updateShop(@RequestBody Shop shop) {
         // 写入数据库
-        shopService.updateById(shop);
-        return Result.ok();
+        return shopService.update(shop);
     }
 
     /**
