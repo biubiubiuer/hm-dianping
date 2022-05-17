@@ -4,7 +4,8 @@ import java.time.LocalDateTime;
 
 import javax.annotation.Resource;
 
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,6 @@ import com.hmdp.mapper.VoucherOrderMapper;
 import com.hmdp.service.ISeckillVoucherService;
 import com.hmdp.service.IVoucherOrderService;
 import com.hmdp.utils.RedisIdWorker;
-import com.hmdp.utils.SimpleRedisLock;
 import com.hmdp.utils.UserHolder;
 
 @Service
@@ -56,28 +56,22 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         return createVoucherOrder(voucherId);
     }
 
-    @Resource
-    private StringRedisTemplate stringRedisTemplate;
+    // @Resource
+    // private StringRedisTemplate stringRedisTemplate;
 
-    /**
-     * @author wendong
-     * @date 2022/5/17
-     * @methodName createVoucherOrder
-     * @description redis 分布式锁版本 1
-     * @param voucherId
-     * @return com.hmdp.dto.Result 
-     *
-     **/
+    @Resource
+    private RedissonClient redissonClient;
+
     @Transactional
     public Result createVoucherOrder(Long voucherId) {
         // 5. 一人一单
         Long userId = UserHolder.getUser().getId();
 
         // 创建锁对象
-        SimpleRedisLock redisLock = new SimpleRedisLock("order:" + userId, stringRedisTemplate);
+        RLock redisLock = redissonClient.getLock("lock:order:" + userId);
 
         // 尝试获取锁
-        boolean isLock = redisLock.tryLock(1200);
+        boolean isLock = redisLock.tryLock();
 
         // 判断
         if (!isLock) {
@@ -124,6 +118,72 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
             redisLock.unlock();
         }
     }
+
+    // /**
+    // * @author wendong
+    // * @date 2022/5/17
+    // * @methodName createVoucherOrder
+    // * @description redis 分布式锁版本 1
+    // * @param voucherId
+    // * @return com.hmdp.dto.Result
+    // *
+    // **/
+    // @Transactional
+    // public Result createVoucherOrder(Long voucherId) {
+    // // 5. 一人一单
+    // Long userId = UserHolder.getUser().getId();
+    //
+    // // 创建锁对象
+    // SimpleRedisLock redisLock = new SimpleRedisLock("order:" + userId, stringRedisTemplate);
+    //
+    // // 尝试获取锁
+    // boolean isLock = redisLock.tryLock(1200);
+    //
+    // // 判断
+    // if (!isLock) {
+    // // 获取锁失败, 直接返回失败 或者 重试
+    // return Result.fail("不允许重复下单!");
+    // }
+    //
+    // try {
+    // // 5.1 查询订单
+    // int count = query().eq("user_id", userId).eq("voucher_id", voucherId).count();
+    //
+    // // 5.2 判断是否存在
+    // if (count > 0) {
+    // // 用户已经购买过了
+    // return Result.fail("用户已经购买过一次!");
+    // }
+    //
+    // // 6. 扣减库存
+    // boolean success = seckillVoucherService.update().setSql("stock = stock - 1").eq("voucher_id", voucherId)
+    // .gt("stock", 0).update();
+    //
+    // if (!success) {
+    // // 扣减失败
+    // return Result.fail("库存不足!");
+    // }
+    // // 7. 创建订单
+    // VoucherOrder voucherOrder = new VoucherOrder();
+    // // 7.1 订单 id
+    // long orderId = redisIdWorker.nextId("order");
+    // voucherOrder.setId(orderId);
+    // // 7.2 用户 id
+    // voucherOrder.setUserId(userId);
+    // // 7.3 代金券 id
+    // voucherOrder.setVoucherId(voucherId);
+    //
+    // save(voucherOrder);
+    //
+    // // 8. 返回订单 id
+    // return Result.ok(voucherId);
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // } finally {
+    // // 释放锁
+    // redisLock.unlock();
+    // }
+    // }
 
     // /**
     // * @author wendong
