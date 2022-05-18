@@ -3,6 +3,7 @@ package com.hmdp;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.redisson.RedissonMultiLock;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,11 +24,15 @@ public class RedissonTest {
     @Resource
     private RedissonClient redissonClient;
     
-    private RLock lock;
+    private RLock lock1, lock2, lock3;
+    private RedissonMultiLock lock;
     
     @BeforeEach
     void setUp() {
-        lock = redissonClient.getLock("order");
+        lock1 = redissonClient.getLock("order1");
+        lock2 = redissonClient.getLock("order2");
+        lock3 = redissonClient.getLock("order3");
+        lock = new RedissonMultiLock(lock1, lock2, lock3);
     }
     
     @Test 
