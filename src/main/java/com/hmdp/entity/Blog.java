@@ -43,13 +43,19 @@ public class Blog implements Serializable {
     /**
      * 用户图标
      */
-    @TableField(exist = false)
+    @TableField(exist = false)  // 不属于 `tb_blog` 表
     private String icon;
     /**
      * 用户姓名
      */
     @TableField(exist = false)
     private String name;
+
+    /**
+     * 是否点赞过了
+     */
+    @TableField(exist = false)
+    private Boolean isLike;
 
     /**
      * 标题
