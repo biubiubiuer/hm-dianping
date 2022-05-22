@@ -69,6 +69,7 @@ class HmDianPingApplicationTests {
         cacheClient.setWithLogicalExpire(CACHE_SHOP_KEY + 1L, shop, 10L, TimeUnit.SECONDS);
     }
 
+    // 导入店铺数据到 GEO
     @Test
     void loadShopData() {
         // 1. 查询店铺信息
