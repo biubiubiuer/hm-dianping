@@ -1,6 +1,7 @@
 package com.hmdp;
 
 import static com.hmdp.utils.RedisConstants.CACHE_SHOP_KEY;
+import static com.hmdp.utils.RedisConstants.SHOP_GEO_KEY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ class HmDianPingApplicationTests {
         for (Map.Entry<Long, List<Shop>> entry : map.entrySet()) {
             // 3.1 获取类型 id
             Long typeId = entry.getKey();
-            String key = "shop:geo:" + typeId;
+            String key = SHOP_GEO_KEY + typeId;
             // 3.2 获取同类型的店铺的集合
             List<Shop> value = entry.getValue();
             List<RedisGeoCommands.GeoLocation<String>> locations = new ArrayList<>();
