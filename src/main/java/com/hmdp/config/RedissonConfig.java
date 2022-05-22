@@ -21,8 +21,8 @@ public class RedissonConfig {
         Config config = new Config();
         config.useClusterServers()
                 .addNodeAddress(
-                "redis://119.29.162.149:7001", "redis://119.29.162.149:7002", "redis://119.29.162.149:7003", 
-                "redis://119.29.162.149:7004", "redis://119.29.162.149:7005", "redis://119.29.162.149:7006"
+                "redis://175.178.242.121:7001", "redis://175.178.242.121:7002", "redis://175.178.242.121:7003", 
+                "redis://175.178.242.121:7004", "redis://175.178.242.121:7005", "redis://175.178.242.121:7006"
                 )
                 .setPassword("Asdzxc2222");
 
